@@ -43,6 +43,7 @@ const loadData = (key) => {
         const data = JSON.parse(dataJSON);
         return key ? data[key] : data;
     } catch (e) {
+        console.error('Error loading data:', e);
         return {};
     }
 };
@@ -56,6 +57,7 @@ const saveData = (key, data) => {
         fs.writeFileSync(dbPath, dataJSON);
         return data;
     } catch (e) {
+        console.error('Error saving data:', e);
         return {};
     }
 };
@@ -87,7 +89,7 @@ app.put('/doors/:id', (req, res) => {
     const doorsData = loadData('doors');
     const doorIndex = doorsData.findIndex((door) => door.id === req.params.id);
 
-    // dont allow to update 'id' field
+    // Don't allow updating 'id' field
     delete req.body.id;
 
     if (doorIndex !== -1) {
@@ -112,6 +114,12 @@ app.delete('/doors/:id', (req, res) => {
     res.status(404).json({ message: 'Door not found' });
 });
 
+// Error handling middleware
+app.use((err, req, res, next) => {
+    console.error('Unhandled error:', err);
+    res.status(500).json({ message: 'Internal server error' });
+});
+
 app.listen(PORT, () => {
-    console.log(`🚀 server is running on ${PORT}`);
+    console.log(`🚀 Server is running on http://localhost:${PORT}`);
 });
